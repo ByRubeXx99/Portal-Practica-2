@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -41,13 +42,8 @@ public class FPSController : MonoBehaviour
     public float m_ShootDistance = 200.0f;
     public LayerMask m_ShootLayerMask;
 
-    [Header("Animation")]
-    public Animation m_Animation;
-    public AnimationClip m_IdleAnimationClip;
-    public AnimationClip m_ShootAnimationClip;
-
-    bool m_ReceivingDamage = false;
-    float m_NextDamageTime = 0.0f;
+    [Header("Portals")]
+    Portal m_BluePortal;
 
     private void Awake()
     {
@@ -59,8 +55,6 @@ public class FPSController : MonoBehaviour
         m_Yaw = transform.rotation.eulerAngles.y;
         m_Pitch = transform.rotation.eulerAngles.x;
         Cursor.lockState = CursorLockMode.Locked;
-
-        SetIdleWeaponAnimation();
     }
 
     private void Update()
@@ -118,12 +112,12 @@ public class FPSController : MonoBehaviour
 
         m_CharacterController.Move(l_Direction);
 
-        if(CanShoot() && MustShoot()) Shoot();
+        if(CanShoot() && MustShoot()) Shoot(m_BluePortal);
     }
 
     bool CanShoot()
     {
-        return true;// m_CurrentBullets > 0 && Time.time >= m_NextShootTime;
+        return true;
     }
 
     bool MustShoot()
@@ -131,24 +125,18 @@ public class FPSController : MonoBehaviour
         return Input.GetKeyDown(m_ShootKeyCode);
     }
 
-    void Shoot()
+    void Shoot(Portal _Portal)
     {
-            
-        SetShootWeaponAnimation();
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
-        if(Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask));
-    }
-
-    void SetIdleWeaponAnimation()
-    {
-        m_Animation.CrossFade(m_IdleAnimationClip.name, 0.1f);
-    }
-
-    void SetShootWeaponAnimation()
-    {
-        m_Animation[m_ShootAnimationClip.name].time = 0.0f;
-        m_Animation.CrossFade(m_ShootAnimationClip.name, 0.1f);
-        m_Animation.CrossFadeQueued(m_IdleAnimationClip.name, 0.1f);
+        if(Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
+        {
+            if(_Portal.IsValidPosition(l_RaycastHit.point, l_RaycastHit.normal))
+                _Portal.gameObject.SetActive(true);
+            else
+                _Portal.gameObject.SetActive(false);
+        }
+        else
+            _Portal.gameObject.SetActive(false);
     }
 }
