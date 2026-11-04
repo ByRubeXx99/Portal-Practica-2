@@ -539,7 +539,7 @@ MonoBehaviour:
   m_Camera: {fileID: 2261804484842701864}
   m_OtherPortalTransform: {fileID: 3398146931567448012}
   m_MirrorPortal: {fileID: 7062671333306875752, guid: b060872c6ca8b8f4f858b811e138b4e0, type: 3}
-  m_CameraOffset: 0
+  m_CameraOffset: 0.01
   m_ValidPositions:
   - {fileID: 4408676947918850457}
   - {fileID: 5508304010805111247}
