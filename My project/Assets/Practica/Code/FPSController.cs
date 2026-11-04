@@ -39,6 +39,7 @@ public class FPSController : MonoBehaviour
     [Header("Shooting")]
     public Camera m_Camera;
     public KeyCode m_ShootKeyCode = KeyCode.Mouse0;
+    public KeyCode m_ShootOrangePortalKeyCode = KeyCode.Mouse1;
     public float m_ShootDistance = 200.0f;
     public LayerMask m_ShootLayerMask;
 
@@ -116,7 +117,7 @@ public class FPSController : MonoBehaviour
 
         if(CanShoot() && MustShoot())
         {
-            if(FirstPortal) Shoot(m_BluePortal);
+            if(FirstPortal == false) Shoot(m_BluePortal);
             else Shoot(OrangePortal);
         }
     }
@@ -128,12 +129,21 @@ public class FPSController : MonoBehaviour
 
     bool MustShoot()
     {
-        return Input.GetKeyDown(m_ShootKeyCode);
+        
+        if(FirstPortal == false)
+        {
+            FirstPortal = true;
+            return Input.GetKeyDown(m_ShootKeyCode);
+        }
+        else
+        {
+            FirstPortal = false;
+            return Input.GetKeyDown(m_ShootOrangePortalKeyCode);
+        }
     }
 
     void Shoot(Portal _Portal)
     {
-        FirstPortal = !FirstPortal;
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
         if(Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
