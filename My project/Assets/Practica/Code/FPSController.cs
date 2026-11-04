@@ -43,7 +43,7 @@ public class FPSController : MonoBehaviour
     public LayerMask m_ShootLayerMask;
 
     [Header("Portals")]
-    Portal m_BluePortal;
+    public Portal m_BluePortal;
 
     private void Awake()
     {

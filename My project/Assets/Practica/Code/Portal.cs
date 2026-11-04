@@ -46,7 +46,7 @@ public class Portal : MonoBehaviour
             Ray l_Ray = new Ray(l_Camera.transform.position, l_Direction);
             if(Physics.Raycast(l_Ray, out RaycastHit l_HitInfo, l_Distance, m_Player.m_ShootLayerMask.value, QueryTriggerInteraction.Ignore))
             {
-                if(l_HitInfo.collider.CompareTag("PortalEnable"))
+                if(l_HitInfo.collider.CompareTag("PortalEnabled"))
                 {
                     float l_DistanceToHitPoint = Vector3.Distance(l_HitInfo.point, m_ValidPositions[i].position);
                     if(l_DistanceToHitPoint < m_RaycastValidationOffsetDistance)
