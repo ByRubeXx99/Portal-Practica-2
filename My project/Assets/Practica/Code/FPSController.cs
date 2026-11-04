@@ -44,6 +44,8 @@ public class FPSController : MonoBehaviour
 
     [Header("Portals")]
     public Portal m_BluePortal;
+    public Portal OrangePortal;
+    public bool FirstPortal = false;
 
     private void Awake()
     {
@@ -112,7 +114,11 @@ public class FPSController : MonoBehaviour
 
         m_CharacterController.Move(l_Direction);
 
-        if(CanShoot() && MustShoot()) Shoot(m_BluePortal);
+        if(CanShoot() && MustShoot())
+        {
+            if(FirstPortal) Shoot(m_BluePortal);
+            else Shoot(OrangePortal);
+        }
     }
 
     bool CanShoot()
@@ -127,6 +133,7 @@ public class FPSController : MonoBehaviour
 
     void Shoot(Portal _Portal)
     {
+        FirstPortal = !FirstPortal;
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
         if(Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))

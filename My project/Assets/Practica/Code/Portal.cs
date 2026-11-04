@@ -13,11 +13,6 @@ public class Portal : MonoBehaviour
     public float m_RaycastValidationOffsetDistance = 0.1f;
     public float m_MaxAngleValidation = 5.0f;
 
-    void Start()
-    {
-        
-    }
-
     void Update()
     {
         Camera l_Camera = m_Player.m_Camera;
