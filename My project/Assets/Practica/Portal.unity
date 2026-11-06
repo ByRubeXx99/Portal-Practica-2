@@ -874,6 +874,7 @@ MonoBehaviour:
   m_ReloadKeyCode: 114
   m_Camera: {fileID: 730318672}
   m_ShootKeyCode: 323
+  m_ShootOrangePortalKeyCode: 324
   m_ShootDistance: 200
   m_ShootLayerMask:
     serializedVersion: 2
@@ -881,6 +882,7 @@ MonoBehaviour:
   m_BluePortal: {fileID: 1802579925648071928}
   OrangePortal: {fileID: 6142392718938616105}
   FirstPortal: 0
+  m_TeleportPortalOffset: 1
 --- !u!143 &974858109
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2019,7 +2021,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8220078126464485706, guid: 737461cb94515584ebb292b814cd6ca3, type: 3}
       propertyPath: m_TagString
-      value: PortalNoEnabled
+      value: Portal
       objectReference: {fileID: 0}
     - target: {fileID: 8698933960922610086, guid: 737461cb94515584ebb292b814cd6ca3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2147,7 +2149,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6666301780086747276, guid: b060872c6ca8b8f4f858b811e138b4e0, type: 3}
       propertyPath: m_TagString
-      value: PortalNoEnabled
+      value: Portal
       objectReference: {fileID: 0}
     - target: {fileID: 7062671333306875752, guid: b060872c6ca8b8f4f858b811e138b4e0, type: 3}
       propertyPath: m_Player

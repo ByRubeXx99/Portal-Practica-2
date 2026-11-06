@@ -48,6 +48,9 @@ public class FPSController : MonoBehaviour
     public Portal OrangePortal;
     public bool FirstPortal = false;
 
+    public float m_TeleportPortalOffset = 1.0f;
+    private Vector3 m_Direction;
+
     private void Awake()
     {
         m_CharacterController=GetComponent<CharacterController>();
@@ -84,7 +87,7 @@ public class FPSController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0.0f, m_Yaw, 0.0f);
         m_PitchController.localRotation = Quaternion.Euler(m_Pitch, 0.0f, 0.0f);
 
-        Vector3 l_Direction = Vector3.zero;
+        m_Direction = Vector3.zero;
         Vector3 l_Right=transform.right;
         Vector3 l_Forward=transform.forward;
         l_Right.y=0.0f;
@@ -92,11 +95,11 @@ public class FPSController : MonoBehaviour
         l_Right.Normalize();
         l_Forward.Normalize();
 
-        if(Input.GetKey(m_RightKeyCode)) l_Direction=transform.right;
-        else if(Input.GetKey(m_LeftKeyCode)) l_Direction=-transform.right;
+        if(Input.GetKey(m_RightKeyCode)) m_Direction=transform.right;
+        else if(Input.GetKey(m_LeftKeyCode)) m_Direction=-transform.right;
 
-        if(Input.GetKey(m_UpKeyCode)) l_Direction+=transform.forward;
-        if(Input.GetKey(m_DownKeyCode)) l_Direction-=transform.forward;
+        if(Input.GetKey(m_UpKeyCode)) m_Direction+=transform.forward;
+        if(Input.GetKey(m_DownKeyCode)) m_Direction-=transform.forward;
 
         float l_Speed = m_Speed;
 
@@ -109,9 +112,9 @@ public class FPSController : MonoBehaviour
         }
         else m_VerticalSpeed += Physics.gravity.y * Time.deltaTime;
 
-        l_Direction.Normalize();
-        l_Direction = l_Direction * l_Speed * Time.deltaTime;
-        l_Direction.y = m_VerticalSpeed * Time.deltaTime;
+        m_Direction.Normalize();
+        Vector3 l_Direction = m_Direction * l_Speed * Time.deltaTime;
+        m_Direction.y = m_VerticalSpeed * Time.deltaTime;
 
         m_CharacterController.Move(l_Direction);
 
@@ -132,12 +135,12 @@ public class FPSController : MonoBehaviour
         
         if(FirstPortal == false)
         {
-            FirstPortal = true;
+            FirstPortal = !FirstPortal;
             return Input.GetKeyDown(m_ShootKeyCode);
         }
         else
         {
-            FirstPortal = false;
+            FirstPortal = !FirstPortal;
             return Input.GetKeyDown(m_ShootOrangePortalKeyCode);
         }
     }
@@ -155,5 +158,37 @@ public class FPSController : MonoBehaviour
         }
         else
             _Portal.gameObject.SetActive(false);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("DeadZone"))
+        {
+           Kill(); 
+        }
+        else if(other.CompareTag("Portal"))
+        {
+            Teleport(other.GetComponent<Portal>());
+        }
+    }
+
+    void Kill()
+    {
+        
+    }
+
+    void Teleport(Portal _Portal)
+    {
+        Vector3 l_WorldPosition = transform.position+m_Direction*m_TeleportPortalOffset;
+        Vector3 l_WorldForward = transform.forward;
+        Vector3 l_LocalPosition = _Portal.m_OtherPortalTransform.InverseTransformPoint(l_WorldPosition);
+        Vector3 l_LocalForward = _Portal.m_OtherPortalTransform.InverseTransformDirection(l_WorldForward);
+        
+        m_CharacterController.enabled = false;
+        transform.forward = _Portal.m_MirrorPortal.transform.TransformDirection(l_LocalForward);
+        transform.position = _Portal.m_MirrorPortal.transform.TransformPoint(l_LocalPosition);
+        m_Yaw = transform.rotation.eulerAngles.y;
+        m_CharacterController.enabled = true;
+
     }
 }

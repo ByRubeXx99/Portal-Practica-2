@@ -6,6 +6,8 @@ TagManager:
   tags:
   - PortalEnabled
   - PortalNoEnabled
+  - Portal
+  - DeadZone
   layers:
   - Default
   - TransparentFX
