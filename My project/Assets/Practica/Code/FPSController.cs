@@ -200,7 +200,7 @@ public class FPSController : MonoBehaviour
    
     bool CanShoot()
     {
-        return true;
+        return !(m_AttachingObject || m_ObjectAttached);
     }
 
     bool MustShoot()

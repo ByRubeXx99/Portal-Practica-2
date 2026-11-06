@@ -8,6 +8,8 @@ TagManager:
   - PortalNoEnabled
   - Portal
   - DeadZone
+  - Cube
+  - CompanionSpawner
   layers:
   - Default
   - TransparentFX
