@@ -1383,7 +1383,7 @@ MonoBehaviour:
   m_MaxValidAngle: 40
   m_TeleportPortalOffset: 1
   m_GrabTransform: {fileID: 365015775}
-  m_TimeToGrab: 0
+  m_TimeToGrab: 0.2
   m_ShootAttachedObjectForce: 20
 --- !u!143 &974858109
 CharacterController:
