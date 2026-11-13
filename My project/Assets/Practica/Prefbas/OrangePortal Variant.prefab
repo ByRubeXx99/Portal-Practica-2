@@ -76,6 +76,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: OrangePortal Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 8220078126464485706, guid: 737461cb94515584ebb292b814cd6ca3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

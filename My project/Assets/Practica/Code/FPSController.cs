@@ -58,8 +58,10 @@ public class FPSController : MonoBehaviour
 
     [Header("Grab")]
     public Transform m_GrabTransform;
+    public Vector3 m_GrabOffset;
     public float m_TimeToGrab = 0.0f;
     public float m_ShootAttachedObjectForce = 20.0f;
+    public List<GameObject> m_GrabableObjects = new List<GameObject>();
 
     private void Awake()
     {
@@ -151,18 +153,24 @@ public class FPSController : MonoBehaviour
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
         if (Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
         {
-            if (l_RaycastHit.collider.CompareTag("Cube")||l_RaycastHit.collider.CompareTag("RefractionCube"))
-                GrabObject(l_RaycastHit.collider);
+            foreach (GameObject l_Object in m_GrabableObjects)
+            {
+                if(l_RaycastHit.collider.CompareTag(l_Object.tag))
+                {
+                    m_GrabOffset = new Vector3(0, l_Object.transform.localScale.y*2.0f, 0);
+                    GrabObject(l_RaycastHit.collider);
+                    break;
+                }
+            }
         }
     }
     void GrabObject(Collider _Collider)
-    {
+    { 
         m_GrabObject = _Collider.GetComponent<Rigidbody>();
         m_GrabObject.isKinematic = true;
         m_AttachingObject = true;
         m_GrabObject.transform.SetParent(m_GrabTransform);
         m_GrabTime = Time.time;
-
     }
     void UpdateAttachingObject()
     {
@@ -170,7 +178,7 @@ public class FPSController : MonoBehaviour
         {
             float l_DiffTime = Time.time - m_GrabTime;
             float l_Pct = Mathf.Min(1.0f, l_DiffTime / m_TimeToGrab);
-            m_GrabObject.transform.position = Vector3.Lerp(m_GrabObject.transform.position, m_GrabTransform.position, l_Pct);
+            m_GrabObject.transform.position = Vector3.Lerp(m_GrabObject.transform.position + m_GrabOffset, m_GrabTransform.position, l_Pct);
             m_GrabObject.transform.rotation = Quaternion.Lerp(m_GrabObject.transform.rotation, m_GrabTransform.rotation, l_Pct);
             if (l_Pct == 1.0f)
             {
@@ -179,6 +187,7 @@ public class FPSController : MonoBehaviour
             }
         }
     }
+
     void UpdateAttachedObject()
     {
         if (m_ObjectAttached)
@@ -189,6 +198,7 @@ public class FPSController : MonoBehaviour
                 ThrowAttachedObject(m_ShootAttachedObjectForce);
         }
     }
+
     void ThrowAttachedObject(float Force)
     {
         m_GrabObject.isKinematic = false;
@@ -197,7 +207,6 @@ public class FPSController : MonoBehaviour
         m_ObjectAttached = false;
     }
 
-   
     bool CanShoot()
     {
         return !(m_AttachingObject || m_ObjectAttached);
@@ -274,6 +283,4 @@ public class FPSController : MonoBehaviour
     {
         
     }
-
-    
 }
