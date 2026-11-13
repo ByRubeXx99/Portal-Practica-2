@@ -10,6 +10,7 @@ TagManager:
   - DeadZone
   - Cube
   - CompanionSpawner
+  - RefractionCube
   layers:
   - Default
   - TransparentFX
