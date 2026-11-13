@@ -43,5 +43,7 @@ public class CompanionCube : MonoBehaviour
         m_Rigidbody.isKinematic = false;
         m_Rigidbody.linearVelocity =_Portal.m_MirrorPortal.transform.TransformDirection(l_LocalLinearVelocity);
         transform.localScale = Vector3.one * transform.localScale.x * l_Scale;
+
+
     }
 }

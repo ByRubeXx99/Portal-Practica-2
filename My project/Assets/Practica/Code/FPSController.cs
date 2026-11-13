@@ -151,7 +151,7 @@ public class FPSController : MonoBehaviour
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
         if (Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
         {
-            if (l_RaycastHit.collider.CompareTag("Cube")||l_RaycastHit.collider.CompareTag("RefractionCube"))
+            if (l_RaycastHit.collider.CompareTag("Cube"))
                 GrabObject(l_RaycastHit.collider);
         }
     }
