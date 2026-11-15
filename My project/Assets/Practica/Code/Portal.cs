@@ -22,8 +22,21 @@ public class Portal : MonoBehaviour
         Vector3 l_DirectionLocalPosition = m_MirrorPortal.transform.InverseTransformDirection(l_DirectionWorldPosition);
         m_Camera.transform.position = m_OtherPortalTransform.TransformPoint(l_CameraLocalPosition);
         m_Camera.transform.forward = m_OtherPortalTransform.TransformDirection(l_DirectionLocalPosition);
-        float l_Distance = Vector3.Distance(m_Camera.transform.position, transform.position);
-        m_Camera.nearClipPlane = l_Distance + m_CameraOffset;
+
+        m_Camera.nearClipPlane = 0.1f;
+        m_Camera.ResetProjectionMatrix();
+
+        Vector3 l_PlaneNormal = transform.forward;
+        Vector3 l_PlanePos = transform.position + l_PlaneNormal * m_CameraOffset;
+        Vector3 l_CamSpacePos = m_Camera.worldToCameraMatrix.MultiplyPoint(l_PlanePos);
+        Vector3 l_CamSpaceNormal = m_Camera.worldToCameraMatrix.MultiplyVector(l_PlaneNormal).normalized;
+        float l_CamSpaceDist = -Vector3.Dot(l_CamSpacePos, l_CamSpaceNormal);
+
+        if (l_CamSpaceDist < -0.05f)
+        {
+            Vector4 l_ClipPlane = new Vector4(l_CamSpaceNormal.x, l_CamSpaceNormal.y, l_CamSpaceNormal.z, l_CamSpaceDist);
+            m_Camera.projectionMatrix = m_Camera.CalculateObliqueMatrix(l_ClipPlane);
+        }
     }
 
     public bool IsValidPosition(Vector3 Position, Vector3 Normal)

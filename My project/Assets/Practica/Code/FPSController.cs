@@ -125,7 +125,7 @@ public class FPSController : MonoBehaviour
         m_Direction.Normalize();
         Vector3 l_Direction = m_Direction * l_Speed * Time.deltaTime;
         m_Direction.y = m_VerticalSpeed * Time.deltaTime;
-
+        l_Direction.y = m_VerticalSpeed * Time.deltaTime;
         m_CharacterController.Move(l_Direction);
 
         if (CanGrabObject())
@@ -242,7 +242,7 @@ public class FPSController : MonoBehaviour
         else if(other.CompareTag("Portal"))
         {
             Portal l_Portal = other.GetComponent<Portal>();
-            if(CanTeleport(l_Portal))
+            if(l_Portal.m_MirrorPortal.gameObject.activeInHierarchy && CanTeleport(l_Portal))
             Teleport(l_Portal);
         }
         else if (other.CompareTag("CompanionSpawner"))
