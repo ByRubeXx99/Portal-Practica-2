@@ -10,6 +10,7 @@ TagManager:
   - DeadZone
   - Cube
   - CompanionSpawner
+  - Turret
   layers:
   - Default
   - TransparentFX

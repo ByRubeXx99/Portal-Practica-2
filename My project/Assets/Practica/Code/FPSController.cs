@@ -153,6 +153,8 @@ public class FPSController : MonoBehaviour
         {
             if (l_RaycastHit.collider.CompareTag("Cube"))
                 GrabObject(l_RaycastHit.collider);
+            else if (l_RaycastHit.collider.CompareTag("Turret"))
+                GrabObject(l_RaycastHit.collider);
         }
     }
     void GrabObject(Collider _Collider)
