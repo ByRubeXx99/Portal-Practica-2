@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 public class FPSController : MonoBehaviour
@@ -70,6 +71,12 @@ public class FPSController : MonoBehaviour
     public float m_ShootAttachedObjectForce = 20.0f;
     public List<GameObject> m_GrabableObjects = new List<GameObject>();
 
+    [Header("Health")]
+    public float m_MaxHealth = 100;
+    float m_CurrentHealth;
+    bool m_IsDead = false;
+    public GameObject m_GameOverUI;
+
     private void Awake()
     {
         m_CharacterController=GetComponent<CharacterController>();
@@ -80,11 +87,24 @@ public class FPSController : MonoBehaviour
         m_Yaw = transform.rotation.eulerAngles.y;
         m_Pitch = transform.rotation.eulerAngles.x;
         Cursor.lockState = CursorLockMode.Locked;
+
+        m_CurrentHealth = m_MaxHealth;
+        m_IsDead = false;
+        if (m_GameOverUI != null)
+            m_GameOverUI.SetActive(false);
     }
 
     private void Update()
     {
-        if(Input.GetKeyDown(m_DebugLockAngleKeyCode))
+        if (Input.GetKeyDown(m_ReloadKeyCode))
+        {
+            RestartLevel();
+        }
+
+        if (m_IsDead)
+            return;
+
+        if (Input.GetKeyDown(m_DebugLockAngleKeyCode))
             m_AngleLocked = !m_AngleLocked;
         if(Input.GetKeyDown(m_DebugLockCursorKeyCode))
             Cursor.lockState = Cursor.lockState != CursorLockMode.Locked ? CursorLockMode.Locked : CursorLockMode.None;
@@ -277,10 +297,7 @@ public class FPSController : MonoBehaviour
         m_Direction = Vector3.zero;
         m_CharacterController.enabled = true;
     }
-    void Kill()
-    {   
-    }
-
+  
     void ChangePortalScale()
     {
         float l_Scroll = Input.GetAxis("Mouse ScrollWheel");
@@ -337,6 +354,42 @@ public class FPSController : MonoBehaviour
             else l_Preview.SetActive(false);  
         }
         else l_Preview.SetActive(false);
-        
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (m_IsDead)
+            return;
+
+        m_CurrentHealth -= damage;
+        if (m_CurrentHealth <= 0.0f)
+        {
+            m_CurrentHealth = 0.0f;
+            Kill();
+        }
+    }
+    
+    void Kill()
+    {
+        if (m_IsDead)
+            return;
+
+        m_IsDead = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        if (m_GameOverUI != null)
+            m_GameOverUI.SetActive(true);
+    }
+
+    public void RestartLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.collider.CompareTag("DeadZone"))
+        {
+            Kill();
+        }
     }
 }
