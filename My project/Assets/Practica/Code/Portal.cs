@@ -32,11 +32,13 @@ public class Portal : MonoBehaviour
         Vector3 l_CamSpaceNormal = m_Camera.worldToCameraMatrix.MultiplyVector(l_PlaneNormal).normalized;
         float l_CamSpaceDist = -Vector3.Dot(l_CamSpacePos, l_CamSpaceNormal);
 
+        /*
         if (l_CamSpaceDist < -0.05f)
         {
             Vector4 l_ClipPlane = new Vector4(l_CamSpaceNormal.x, l_CamSpaceNormal.y, l_CamSpaceNormal.z, l_CamSpaceDist);
             m_Camera.projectionMatrix = m_Camera.CalculateObliqueMatrix(l_ClipPlane);
         }
+        */
     }
 
     public bool IsValidPosition(Vector3 Position, Vector3 Normal)

@@ -14,7 +14,6 @@ public class FPSController : MonoBehaviour
     float m_GrabTime;
     Rigidbody m_GrabObject;
 
-    // public GameUI GameUI;
     float m_Yaw;
     float m_Pitch = 0.0f;
     private Vector3 m_Direction;
@@ -55,11 +54,21 @@ public class FPSController : MonoBehaviour
     public bool FirstPortal = false;
     public float m_MaxValidAngle = 40.0f;
     public float m_TeleportPortalOffset = 1.0f;
+    public float m_PortalScaleSpeed = 0.5f;
+    public float m_MinPortalScale = 0.5f;
+    public float m_MaxPortalScale = 2.0f;
+
+    [Header("PortalPreview")]
+    public GameObject m_BluePortalPreview;
+    public GameObject m_OrangePortalPreview;
+    public float m_PreviewOffset = 0.02f;
 
     [Header("Grab")]
     public Transform m_GrabTransform;
+    public Vector3 m_GrabOffset;
     public float m_TimeToGrab = 0.0f;
     public float m_ShootAttachedObjectForce = 20.0f;
+    public List<GameObject> m_GrabableObjects = new List<GameObject>();
 
     private void Awake()
     {
@@ -124,18 +133,26 @@ public class FPSController : MonoBehaviour
 
         m_Direction.Normalize();
         Vector3 l_Direction = m_Direction * l_Speed * Time.deltaTime;
-        m_Direction.y = m_VerticalSpeed * Time.deltaTime;
         l_Direction.y = m_VerticalSpeed * Time.deltaTime;
+
         m_CharacterController.Move(l_Direction);
 
-        if (CanGrabObject())
+        ChangePortalScale();
+        UpdatePortalPreview();
+
+        if (CanGrabObject()) GrabObject();
+        if(CanShoot())
         {
-            GrabObject();
-        }
-        if(CanShoot() && MustShoot())
-        {
-            if(FirstPortal == false) Shoot(m_BluePortal);
-            else Shoot(OrangePortal);
+            if(Input.GetKeyDown(m_ShootKeyCode))
+            {
+                if (Shoot(m_BluePortal))
+                    FirstPortal = true;
+            }
+            if(Input.GetKeyDown(m_ShootOrangePortalKeyCode) && FirstPortal)
+            {
+                Shoot(OrangePortal);
+                FirstPortal = false;
+            }
         }
         UpdateAttachingObject();
         UpdateAttachedObject();
@@ -151,28 +168,34 @@ public class FPSController : MonoBehaviour
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
         if (Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
         {
-            if (l_RaycastHit.collider.CompareTag("Cube"))
-                GrabObject(l_RaycastHit.collider);
-            else if (l_RaycastHit.collider.CompareTag("Turret"))
-                GrabObject(l_RaycastHit.collider);
+            foreach (GameObject l_Object in m_GrabableObjects)
+            {
+                if(l_RaycastHit.collider.CompareTag(l_Object.tag))
+                {
+                    m_GrabOffset = new Vector3(0, l_Object.transform.localScale.y*2.0f, 0);
+                    GrabObject(l_RaycastHit.collider);
+                    break;
+                }
+            }
         }
     }
+
     void GrabObject(Collider _Collider)
-    {
+    { 
         m_GrabObject = _Collider.GetComponent<Rigidbody>();
         m_GrabObject.isKinematic = true;
         m_AttachingObject = true;
         m_GrabObject.transform.SetParent(m_GrabTransform);
         m_GrabTime = Time.time;
-
     }
+
     void UpdateAttachingObject()
     {
         if (m_AttachingObject)
         {
             float l_DiffTime = Time.time - m_GrabTime;
             float l_Pct = Mathf.Min(1.0f, l_DiffTime / m_TimeToGrab);
-            m_GrabObject.transform.position = Vector3.Lerp(m_GrabObject.transform.position, m_GrabTransform.position, l_Pct);
+            m_GrabObject.transform.position = Vector3.Lerp(m_GrabObject.transform.position + m_GrabOffset, m_GrabTransform.position, l_Pct);
             m_GrabObject.transform.rotation = Quaternion.Lerp(m_GrabObject.transform.rotation, m_GrabTransform.rotation, l_Pct);
             if (l_Pct == 1.0f)
             {
@@ -181,6 +204,7 @@ public class FPSController : MonoBehaviour
             }
         }
     }
+
     void UpdateAttachedObject()
     {
         if (m_ObjectAttached)
@@ -191,6 +215,7 @@ public class FPSController : MonoBehaviour
                 ThrowAttachedObject(m_ShootAttachedObjectForce);
         }
     }
+
     void ThrowAttachedObject(float Force)
     {
         m_GrabObject.isKinematic = false;
@@ -199,58 +224,38 @@ public class FPSController : MonoBehaviour
         m_ObjectAttached = false;
     }
 
-   
     bool CanShoot()
     {
         return !(m_AttachingObject || m_ObjectAttached);
     }
 
-    bool MustShoot()
-    {
-        
-        if(FirstPortal == false)
-        {
-            FirstPortal = !FirstPortal;
-            return Input.GetKeyDown(m_ShootKeyCode);
-        }
-        else
-        {
-            FirstPortal = !FirstPortal;
-            return Input.GetKeyDown(m_ShootOrangePortalKeyCode);
-        }
-    }
-
-    void Shoot(Portal _Portal)
+    bool Shoot(Portal _Portal)
     {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
         if(Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
         {
             if(_Portal.IsValidPosition(l_RaycastHit.point, l_RaycastHit.normal))
+            {
                 _Portal.gameObject.SetActive(true);
-            else
-                _Portal.gameObject.SetActive(false);
-        }
-        else
-            _Portal.gameObject.SetActive(false);
+                return true;
+            }
+        }    
+        _Portal.gameObject.SetActive(false);
+        return false;   
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("DeadZone"))
-        {
-           Kill(); 
-        }
+        if(other.CompareTag("DeadZone")) Kill(); 
         else if(other.CompareTag("Portal"))
         {
             Portal l_Portal = other.GetComponent<Portal>();
-            if(l_Portal.m_MirrorPortal.gameObject.activeInHierarchy && CanTeleport(l_Portal))
+            if(CanTeleport(l_Portal))
             Teleport(l_Portal);
         }
         else if (other.CompareTag("CompanionSpawner"))
-        {
-            other.GetComponent<CompanionSpawner>().Execute();
-        }
+            other.GetComponent<CompanionSpawner>().Execute();  
     }
     private bool CanTeleport(Portal Portal)
     {
@@ -273,9 +278,65 @@ public class FPSController : MonoBehaviour
         m_CharacterController.enabled = true;
     }
     void Kill()
-    {
-        
+    {   
     }
 
-    
+    void ChangePortalScale()
+    {
+        float l_Scroll = Input.GetAxis("Mouse ScrollWheel");
+        if(l_Scroll != 0.0f)
+        {
+            Portal l_Portal = m_BluePortal;
+            
+            float l_CurrentScale = l_Portal.transform.localScale.x;
+            float l_NewScale = Mathf.Clamp(l_CurrentScale + l_Scroll * m_PortalScaleSpeed, m_MinPortalScale, m_MaxPortalScale);
+
+            l_Portal.transform.localScale = Vector3.one * l_NewScale;
+        }
+    }
+
+    void UpdatePortalPreview()
+    {
+        Portal l_Portal;
+        GameObject l_Preview;
+
+        if (FirstPortal)
+        {
+            l_Portal = OrangePortal;
+            l_Preview = m_OrangePortalPreview;
+            m_BluePortalPreview.SetActive(false);
+        }
+        else
+        {
+            l_Portal = m_BluePortal;
+            l_Preview = m_BluePortalPreview;
+            m_OrangePortalPreview.SetActive(false);
+        }
+
+        if (!CanShoot())
+        {
+            l_Preview.SetActive(false);
+            return;
+        }
+
+        Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+
+        if (Physics.Raycast(l_Ray, out RaycastHit l_Hit, m_ShootDistance, m_ShootLayerMask.value, QueryTriggerInteraction.Ignore))
+        {
+            // Només previsualitzem superfícies aptes
+            if (l_Hit.collider.CompareTag("PortalEnabled"))
+            {
+                l_Preview.SetActive(true);
+
+                l_Preview.transform.position = l_Hit.point + l_Hit.normal * m_PreviewOffset;
+
+                l_Preview.transform.rotation = Quaternion.LookRotation(l_Hit.normal);
+
+                l_Preview.transform.localScale = l_Portal.transform.localScale;
+            }
+            else l_Preview.SetActive(false);  
+        }
+        else l_Preview.SetActive(false);
+        
+    }
 }
