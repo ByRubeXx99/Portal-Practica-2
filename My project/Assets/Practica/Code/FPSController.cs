@@ -447,6 +447,8 @@ public class FPSController : MonoBehaviour
 
         m_CurrentHealth -= damage;
 
+        m_DamageTimer = m_DamageDuration;
+
         if (m_CurrentHealth <= 0.0f)
         {
             m_CurrentHealth = 0.0f;
