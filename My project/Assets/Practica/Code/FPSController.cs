@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
@@ -78,6 +79,10 @@ public class FPSController : MonoBehaviour
     float m_CurrentHealth;
     bool m_IsDead = false;
     public GameObject m_GameOverUI;
+    public Image m_DamageImage;
+    public float m_AlphaMax = 0.5f;
+    public float m_DamageDuration = 0.25f;
+    public float m_DamageTimer = 0.0f;
 
     private void Awake()
     {
@@ -94,6 +99,8 @@ public class FPSController : MonoBehaviour
         m_IsDead = false;
         if (m_GameOverUI != null)
             m_GameOverUI.SetActive(false);
+
+        SetDamageImageAlpha(0.0f);
     }
 
     private void Update()
@@ -102,6 +109,22 @@ public class FPSController : MonoBehaviour
             RestartLevel();
 
         if (m_IsDead) return;
+
+        if (m_DamageTimer > 0.0f)
+        {
+            m_DamageTimer -= Time.deltaTime;
+            if (m_DamageTimer <= 0.0f)
+            {
+                m_DamageTimer = 0.0f;
+                SetDamageImageAlpha(0.0f);
+            }
+            else
+            {
+                float l_Percent = 1.0f - (m_DamageTimer / m_DamageDuration);
+                float l_Alpha = Mathf.Sin(l_Percent * Mathf.PI) * m_AlphaMax;
+                SetDamageImageAlpha(l_Alpha);
+            }
+        }
 
         if (Input.GetKeyDown(m_DebugLockAngleKeyCode))
             m_AngleLocked = !m_AngleLocked;
@@ -402,12 +425,24 @@ public class FPSController : MonoBehaviour
         if (m_IsDead)
             return;
 
+        if (m_DamageTimer <= 0.0f)
+            m_DamageTimer = m_DamageDuration;
+
         m_CurrentHealth -= damage;
 
         if (m_CurrentHealth <= 0.0f)
         {
             m_CurrentHealth = 0.0f;
             Kill();
+        }
+    }
+    void SetDamageImageAlpha(float _Alpha)
+    {
+        if (m_DamageImage != null)
+        {
+            Color l_Color = m_DamageImage.color;
+            l_Color.a = _Alpha;
+            m_DamageImage.color = l_Color;
         }
     }
 
@@ -418,9 +453,12 @@ public class FPSController : MonoBehaviour
 
         m_IsDead = true;
         Cursor.lockState = CursorLockMode.None;
+        SetDamageImageAlpha(0.0f);
 
         if (m_GameOverUI != null)
             m_GameOverUI.SetActive(true);
+
+
     }
 
     public void RestartLevel()
