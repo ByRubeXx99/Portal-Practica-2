@@ -7,17 +7,9 @@ public class RefractionCube : MonoBehaviour
     public LayerMask m_LaserLayerMask;
     public float m_MaxDistance = 100.0f;
 
-    private void Awake()
-    {
-        m_Laser.useWorldSpace = false;
-        m_Laser.positionCount = 2;
-        m_Laser.SetPosition(0, Vector3.zero);
-    }
-
     private void Update()
     {
-        if (m_DisableLaserOnNextFrame)
-            m_Laser.gameObject.SetActive(false);
+        if (m_DisableLaserOnNextFrame) m_Laser.gameObject.SetActive(false);
 
         m_DisableLaserOnNextFrame = true;
     }
@@ -30,7 +22,6 @@ public class RefractionCube : MonoBehaviour
         m_DisableLaserOnNextFrame = false;
 
         Vector3 l_Position = Vector3.forward * m_MaxDistance;
-
         Ray l_Ray = new Ray(m_Laser.transform.position,m_Laser.transform.forward);
 
         if (Physics.Raycast(l_Ray,out RaycastHit l_RaycastHit,m_MaxDistance,m_LaserLayerMask.value,QueryTriggerInteraction.Ignore))
@@ -38,14 +29,8 @@ public class RefractionCube : MonoBehaviour
             l_Position = Vector3.forward * l_RaycastHit.distance;
 
             if (l_RaycastHit.collider.CompareTag("RefractionCube"))
-            {
-                RefractionCube l_Cube = l_RaycastHit.collider.GetComponent<RefractionCube>();
-
-                if (l_Cube != null && l_Cube != this)
-                    l_Cube.Refract();
-            }
+                l_RaycastHit.collider.GetComponent<RefractionCube>().Refract();     
         }
-
         m_Laser.SetPosition(1, l_Position);
         m_Laser.gameObject.SetActive(true);
     }
