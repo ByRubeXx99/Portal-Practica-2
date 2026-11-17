@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class FPSController : MonoBehaviour
@@ -31,6 +32,11 @@ public class FPSController : MonoBehaviour
     public float m_SprintSpeed = 0.0f;
     float m_BluePortalScale = 1.0f;
     float m_OrangePortalScale = 1.0f;
+
+    public Image m_DamageImage;
+    public float m_AlphaMax = 0.5f;
+    public float m_DamageDuration = 0.25f;
+    public float m_DamageTimer = 0.0f;
 
     [Header("Input")]
     public KeyCode m_RightKeyCode = KeyCode.D;
@@ -84,6 +90,11 @@ public class FPSController : MonoBehaviour
     private void Awake()
     {
         m_CharacterController = GetComponent<CharacterController>();
+        
+        m_IsDead = false;
+        if (m_GameOverUI != null)
+            m_GameOverUI.SetActive(false);
+        SetDamageImageAlpha(0.0f);
     }
 
     private void Start()
@@ -104,6 +115,24 @@ public class FPSController : MonoBehaviour
             RestartLevel();
 
         if (m_IsDead) return;
+
+        if (m_DamageTimer > 0.0f)
+        {
+            m_DamageTimer -= Time.deltaTime;
+            if (m_DamageTimer <= 0.0f)
+            {
+                m_DamageTimer = 0.0f;
+                SetDamageImageAlpha(0.0f);
+            }
+            else
+            {
+                float l_Percent = 1.0f - (m_DamageTimer / m_DamageDuration);
+                float l_Alpha = Mathf.Sin(l_Percent * Mathf.PI) * m_AlphaMax;
+                SetDamageImageAlpha(l_Alpha);
+            }
+        }
+
+
 
         if (Input.GetKeyDown(m_DebugLockAngleKeyCode))
             m_AngleLocked = !m_AngleLocked;
@@ -432,6 +461,7 @@ public class FPSController : MonoBehaviour
 
         m_IsDead = true;
         Cursor.lockState = CursorLockMode.None;
+        SetDamageImageAlpha(0.0f);
 
         if (m_GameOverUI != null)
             m_GameOverUI.SetActive(true);
@@ -447,5 +477,15 @@ public class FPSController : MonoBehaviour
         if (hit.collider.CompareTag("DeadZone"))
             Kill();
 
+    }
+
+    void SetDamageImageAlpha(float _Alpha)
+    {
+        if (m_DamageImage != null)
+        {
+            Color l_Color = m_DamageImage.color;
+            l_Color.a = _Alpha;
+            m_DamageImage.color = l_Color;
+        }
     }
 }

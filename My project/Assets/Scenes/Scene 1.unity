@@ -4355,7 +4355,7 @@ PrefabInstance:
     - target: {fileID: 1712653516900509749, guid: cfe00bea6a6b28f43ab3f0b59b4f6233, type: 3}
       propertyPath: 'm_GrabableObjects.Array.data[2]'
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1219922191258501643, guid: 7380367a0ff3db248a396ac21f0d98f8, type: 3}
     - target: {fileID: 7508630162128754534, guid: cfe00bea6a6b28f43ab3f0b59b4f6233, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.61
