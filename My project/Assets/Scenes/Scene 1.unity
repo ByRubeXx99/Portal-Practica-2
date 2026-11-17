@@ -4268,7 +4268,7 @@ PrefabInstance:
     - target: {fileID: 1712653516900509749, guid: cfe00bea6a6b28f43ab3f0b59b4f6233, type: 3}
       propertyPath: m_GameOverUI
       value: 
-      objectReference: {fileID: 1767844528}
+      objectReference: {fileID: 696751007}
     - target: {fileID: 1712653516900509749, guid: cfe00bea6a6b28f43ab3f0b59b4f6233, type: 3}
       propertyPath: m_DamageImage
       value: 
