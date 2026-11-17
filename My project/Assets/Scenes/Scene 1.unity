@@ -4107,7 +4107,7 @@ PrefabInstance:
     - target: {fileID: 1712653516900509749, guid: cfe00bea6a6b28f43ab3f0b59b4f6233, type: 3}
       propertyPath: m_OrangePortalPreview
       value: 
-      objectReference: {fileID: 443424040591338289}
+      objectReference: {fileID: 7506175298668678034, guid: cc57b5bfda225984fa14e9f3a2f10e86, type: 3}
     - target: {fileID: 1712653516900509749, guid: cfe00bea6a6b28f43ab3f0b59b4f6233, type: 3}
       propertyPath: m_ShootLayerMask.m_Bits
       value: 1
@@ -8232,68 +8232,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2135643869}
   m_CullTransparentMesh: 1
---- !u!1001 &443424040591338288
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -34.281235
-      objectReference: {fileID: 0}
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 7.790546
-      objectReference: {fileID: 0}
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 28.74834
-      objectReference: {fileID: 0}
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 660677035183785923, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4673175409098551673, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-      propertyPath: m_Name
-      value: OrangePortalPreview
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
---- !u!1 &443424040591338289 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4673175409098551673, guid: 1631e36607287ee47ab78e11ccb3a465, type: 3}
-  m_PrefabInstance: {fileID: 443424040591338288}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &5517830450742388409 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5517830450507613870, guid: 737461cb94515584ebb292b814cd6ca3, type: 3}
@@ -8456,7 +8394,6 @@ SceneRoots:
   - {fileID: 1184967167}
   - {fileID: 906125335}
   - {fileID: 8772893306333007721}
-  - {fileID: 443424040591338288}
   - {fileID: 153993036}
   - {fileID: 1665511510}
   - {fileID: 680267472}

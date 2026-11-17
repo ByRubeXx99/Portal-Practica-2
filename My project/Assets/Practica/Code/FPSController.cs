@@ -63,6 +63,8 @@ public class FPSController : MonoBehaviour
     public GameObject m_BluePortalPreview;
     public GameObject m_OrangePortalPreview;
     public float m_PreviewOffset = 0.02f;
+    bool m_BluePortalPlaced = false;
+    bool m_OrangePortalPlaced = false;
 
     [Header("Grab")]
     public Transform m_GrabTransform;
@@ -79,7 +81,7 @@ public class FPSController : MonoBehaviour
 
     private void Awake()
     {
-        m_CharacterController=GetComponent<CharacterController>();
+        m_CharacterController = GetComponent<CharacterController>();
     }
 
     private void Start()
@@ -98,12 +100,12 @@ public class FPSController : MonoBehaviour
     {
         if (Input.GetKeyDown(m_ReloadKeyCode))
             RestartLevel();
-        
+
         if (m_IsDead) return;
 
         if (Input.GetKeyDown(m_DebugLockAngleKeyCode))
             m_AngleLocked = !m_AngleLocked;
-        if(Input.GetKeyDown(m_DebugLockCursorKeyCode))
+        if (Input.GetKeyDown(m_DebugLockCursorKeyCode))
             Cursor.lockState = Cursor.lockState != CursorLockMode.Locked ? CursorLockMode.Locked : CursorLockMode.None;
 
         float l_MouseX = Input.GetAxis("Mouse X");
@@ -112,7 +114,7 @@ public class FPSController : MonoBehaviour
         if (m_InvertedYaw) l_MouseX = -l_MouseX;
         if (m_InvertedPitch) l_MouseY = -l_MouseY;
 
-        if(!m_AngleLocked)
+        if (!m_AngleLocked)
         {
             m_Yaw += l_MouseX * m_YawSpeed * Time.deltaTime;
             m_Pitch -= l_MouseY * m_PitchSpeed * Time.deltaTime;
@@ -124,27 +126,27 @@ public class FPSController : MonoBehaviour
         m_PitchController.localRotation = Quaternion.Euler(m_Pitch, 0.0f, 0.0f);
 
         m_Direction = Vector3.zero;
-        Vector3 l_Right=transform.right;
-        Vector3 l_Forward=transform.forward;
-        l_Right.y=0.0f;
-        l_Forward.y=0.0f;
+        Vector3 l_Right = transform.right;
+        Vector3 l_Forward = transform.forward;
+        l_Right.y = 0.0f;
+        l_Forward.y = 0.0f;
         l_Right.Normalize();
         l_Forward.Normalize();
 
-        if(Input.GetKey(m_RightKeyCode)) m_Direction=transform.right;
-        else if(Input.GetKey(m_LeftKeyCode)) m_Direction=-transform.right;
+        if (Input.GetKey(m_RightKeyCode)) m_Direction = transform.right;
+        else if (Input.GetKey(m_LeftKeyCode)) m_Direction = -transform.right;
 
-        if(Input.GetKey(m_UpKeyCode)) m_Direction+=transform.forward;
-        if(Input.GetKey(m_DownKeyCode)) m_Direction-=transform.forward;
+        if (Input.GetKey(m_UpKeyCode)) m_Direction += transform.forward;
+        if (Input.GetKey(m_DownKeyCode)) m_Direction -= transform.forward;
 
         float l_Speed = m_Speed;
 
-        if(Input.GetKey(m_SprintKeyCode)) l_Speed = m_SprintSpeed;
+        if (Input.GetKey(m_SprintKeyCode)) l_Speed = m_SprintSpeed;
 
-        if(m_CharacterController.isGrounded)
+        if (m_CharacterController.isGrounded)
         {
-            if(m_VerticalSpeed < 0.0f) m_VerticalSpeed = -2.0f;
-            if(Input.GetKeyDown(m_JumpKeyCode)) m_VerticalSpeed = m_JumpSpeed;
+            if (m_VerticalSpeed < 0.0f) m_VerticalSpeed = -2.0f;
+            if (Input.GetKeyDown(m_JumpKeyCode)) m_VerticalSpeed = m_JumpSpeed;
         }
         else m_VerticalSpeed += Physics.gravity.y * Time.deltaTime;
 
@@ -158,17 +160,30 @@ public class FPSController : MonoBehaviour
         UpdatePortalPreview();
 
         if (CanGrabObject()) GrabObject();
-        if(CanShoot())
+        if (CanShoot())
         {
-            if(Input.GetKeyDown(m_ShootKeyCode))
+            if (!FirstPortal)
             {
-                if (Shoot(m_BluePortal))
-                    FirstPortal = true;
+                if (Input.GetKeyDown(m_ShootKeyCode))
+                {
+                    if (Shoot(m_BluePortal))
+                    {
+                        m_BluePortalPlaced = true;
+                        FirstPortal = true;
+                    }
+
+                }
             }
-            if(Input.GetKeyDown(m_ShootOrangePortalKeyCode) && FirstPortal)
+            else
             {
-                Shoot(OrangePortal);
-                FirstPortal = false;
+                if (Input.GetKeyDown(m_ShootOrangePortalKeyCode))
+                {
+                    if (Shoot(OrangePortal))
+                    {
+                        m_OrangePortalPlaced = true;
+                        FirstPortal = false;
+                    }
+                }
             }
         }
         UpdateAttachingObject();
@@ -187,9 +202,9 @@ public class FPSController : MonoBehaviour
         {
             foreach (GameObject l_Object in m_GrabableObjects)
             {
-                if(l_RaycastHit.collider.CompareTag(l_Object.tag))
+                if (l_RaycastHit.collider.CompareTag(l_Object.tag))
                 {
-                    m_GrabOffset = new Vector3(0, l_Object.transform.localScale.y*2.0f, 0);
+                    m_GrabOffset = new Vector3(0, l_Object.transform.localScale.y * 2.0f, 0);
                     GrabObject(l_RaycastHit.collider);
                     break;
                 }
@@ -198,7 +213,7 @@ public class FPSController : MonoBehaviour
     }
 
     void GrabObject(Collider _Collider)
-    { 
+    {
         m_GrabObject = _Collider.GetComponent<Rigidbody>();
         m_GrabObject.isKinematic = true;
         m_AttachingObject = true;
@@ -250,33 +265,33 @@ public class FPSController : MonoBehaviour
     {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
-        if(Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
         {
-            if(_Portal.IsValidPosition(l_RaycastHit.point, l_RaycastHit.normal))
+            if (_Portal.IsValidPosition(l_RaycastHit.point, l_RaycastHit.normal))
             {
                 _Portal.gameObject.SetActive(true);
                 return true;
             }
-        }    
-        _Portal.gameObject.SetActive(false);
-        return false;   
+        }
+        // _Portal.gameObject.SetActive(false);
+        return false;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("DeadZone")) Kill(); 
-        else if(other.CompareTag("Portal"))
+        if (other.CompareTag("DeadZone")) Kill();
+        else if (other.CompareTag("Portal"))
         {
             Portal l_Portal = other.GetComponent<Portal>();
-            if(CanTeleport(l_Portal))
-            Teleport(l_Portal);
+            if (CanTeleport(l_Portal))
+                Teleport(l_Portal);
         }
         else if (other.CompareTag("CompanionSpawner"))
-            other.GetComponent<CompanionSpawner>().Execute();  
+            other.GetComponent<CompanionSpawner>().Execute();
     }
     private bool CanTeleport(Portal Portal)
     {
-        float l_MaxDotAngle = Mathf.Cos(m_MaxValidAngle *  Mathf.Deg2Rad);
+        float l_MaxDotAngle = Mathf.Cos(m_MaxValidAngle * Mathf.Deg2Rad);
         float l_DotAngle = Vector3.Dot(-m_Direction, Portal.transform.forward);
         return l_DotAngle >= l_MaxDotAngle;
     }
@@ -294,21 +309,29 @@ public class FPSController : MonoBehaviour
         m_Direction = Vector3.zero;
         m_CharacterController.enabled = true;
     }
-  
+
+
     void ChangePortalScale()
     {
         float l_Scroll = Input.GetAxis("Mouse ScrollWheel");
-        if(l_Scroll != 0.0f)
-        {
-            Portal l_Portal = m_BluePortal;
-            
-            float l_CurrentScale = l_Portal.transform.localScale.x;
-            float l_NewScale = Mathf.Clamp(l_CurrentScale + l_Scroll * m_PortalScaleSpeed, m_MinPortalScale, m_MaxPortalScale);
 
-            l_Portal.transform.localScale = Vector3.one * l_NewScale;
-        }
+        if(l_Scroll == 0.0f) return;
+ 
+        Portal l_Portal;
+
+        if (!FirstPortal && !m_BluePortalPlaced)
+            l_Portal = m_BluePortal;
+        else if(FirstPortal && !m_OrangePortalPlaced)
+            l_Portal = OrangePortal;
+        else return;
+        
+        float l_CurrentScale = l_Portal.transform.localScale.x;
+
+        float l_NewScale = Mathf.Clamp(l_CurrentScale + l_Scroll * m_PortalScaleSpeed,m_MinPortalScale,m_MaxPortalScale);
+
+        l_Portal.transform.localScale = Vector3.one * l_NewScale;
+        
     }
-
     void UpdatePortalPreview()
     {
         Portal l_Portal;
@@ -319,12 +342,20 @@ public class FPSController : MonoBehaviour
             l_Portal = OrangePortal;
             l_Preview = m_OrangePortalPreview;
             m_BluePortalPreview.SetActive(false);
+            m_OrangePortalPreview.SetActive(true);
         }
         else
         {
             l_Portal = m_BluePortal;
             l_Preview = m_BluePortalPreview;
             m_OrangePortalPreview.SetActive(false);
+            m_BluePortalPreview.SetActive(true);
+        }
+
+        if (l_Portal == null || l_Preview == null || m_Camera == null)
+        {
+            Debug.LogWarning("Falta assignar un portal o Preview!");
+            return;
         }
 
         if (!CanShoot())
@@ -333,24 +364,37 @@ public class FPSController : MonoBehaviour
             return;
         }
 
-        Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+        Ray l_Ray = m_Camera.ViewportPointToRay(
+            new Vector3(0.5f, 0.5f, 0.0f)
+        );
 
-        if (Physics.Raycast(l_Ray, out RaycastHit l_Hit, m_ShootDistance, m_ShootLayerMask.value, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(
+            l_Ray,
+            out RaycastHit l_Hit,
+            m_ShootDistance,
+            m_ShootLayerMask.value,
+            QueryTriggerInteraction.Ignore))
         {
-            // Només previsualitzem superfícies aptes
             if (l_Hit.collider.CompareTag("PortalEnabled"))
             {
+                l_Preview.transform.position =
+                    l_Hit.point + l_Hit.normal * m_PreviewOffset;
+
+                l_Preview.transform.rotation =
+                    Quaternion.LookRotation(l_Hit.normal);
+
+                l_Preview.transform.localScale =
+                    l_Portal.transform.localScale;
+
                 l_Preview.SetActive(true);
-
-                l_Preview.transform.position = l_Hit.point + l_Hit.normal * m_PreviewOffset;
-
-                l_Preview.transform.rotation = Quaternion.LookRotation(l_Hit.normal);
-
-                l_Preview.transform.localScale = l_Portal.transform.localScale;
             }
-            else l_Preview.SetActive(false);  
+            else
+                l_Preview.SetActive(false);
+
         }
-        else l_Preview.SetActive(false);
+        else
+            l_Preview.SetActive(false);
+
     }
 
     public void TakeDamage(float damage)
@@ -366,7 +410,7 @@ public class FPSController : MonoBehaviour
             Kill();
         }
     }
-    
+
     void Kill()
     {
         if (m_IsDead)
@@ -388,6 +432,6 @@ public class FPSController : MonoBehaviour
     {
         if (hit.collider.CompareTag("DeadZone"))
             Kill();
-        
+
     }
 }
