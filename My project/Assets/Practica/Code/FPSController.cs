@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
@@ -30,6 +29,8 @@ public class FPSController : MonoBehaviour
     float m_VerticalSpeed = 0.0f;
     public float m_JumpSpeed = 0.0f;
     public float m_SprintSpeed = 0.0f;
+    float m_BluePortalScale = 1.0f;
+    float m_OrangePortalScale = 1.0f;
 
     [Header("Input")]
     public KeyCode m_RightKeyCode = KeyCode.D;
@@ -79,10 +80,6 @@ public class FPSController : MonoBehaviour
     float m_CurrentHealth;
     bool m_IsDead = false;
     public GameObject m_GameOverUI;
-    public Image m_DamageImage;
-    public float m_AlphaMax = 0.5f;
-    public float m_DamageDuration = 0.25f;
-    public float m_DamageTimer = 0.0f;
 
     private void Awake()
     {
@@ -99,8 +96,6 @@ public class FPSController : MonoBehaviour
         m_IsDead = false;
         if (m_GameOverUI != null)
             m_GameOverUI.SetActive(false);
-
-        SetDamageImageAlpha(0.0f);
     }
 
     private void Update()
@@ -109,22 +104,6 @@ public class FPSController : MonoBehaviour
             RestartLevel();
 
         if (m_IsDead) return;
-
-        if (m_DamageTimer > 0.0f)
-        {
-            m_DamageTimer -= Time.deltaTime;
-            if (m_DamageTimer <= 0.0f)
-            {
-                m_DamageTimer = 0.0f;
-                SetDamageImageAlpha(0.0f);
-            }
-            else
-            {
-                float l_Percent = 1.0f - (m_DamageTimer / m_DamageDuration);
-                float l_Alpha = Mathf.Sin(l_Percent * Mathf.PI) * m_AlphaMax;
-                SetDamageImageAlpha(l_Alpha);
-            }
-        }
 
         if (Input.GetKeyDown(m_DebugLockAngleKeyCode))
             m_AngleLocked = !m_AngleLocked;
@@ -288,15 +267,22 @@ public class FPSController : MonoBehaviour
     {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
-        if (Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
+        if (Physics.Raycast(l_Ray,out RaycastHit l_RaycastHit,m_ShootDistance,m_ShootLayerMask.value,QueryTriggerInteraction.Ignore))
         {
-            if (_Portal.IsValidPosition(l_RaycastHit.point, l_RaycastHit.normal))
+            if (!l_RaycastHit.collider.CompareTag("PortalEnabled"))
+                return false;
+
+            if (_Portal == m_BluePortal)
+                _Portal.transform.localScale = Vector3.one * m_BluePortalScale;
+            else if (_Portal == OrangePortal)
+                _Portal.transform.localScale = Vector3.one * m_OrangePortalScale;
+
+            if (_Portal.IsValidPosition(l_RaycastHit.point,l_RaycastHit.normal))
             {
                 _Portal.gameObject.SetActive(true);
                 return true;
             }
         }
-        // _Portal.gameObject.SetActive(false);
         return false;
     }
 
@@ -333,28 +319,37 @@ public class FPSController : MonoBehaviour
         m_CharacterController.enabled = true;
     }
 
-
     void ChangePortalScale()
     {
         float l_Scroll = Input.GetAxis("Mouse ScrollWheel");
 
-        if(l_Scroll == 0.0f) return;
- 
-        Portal l_Portal;
+        if (l_Scroll == 0.0f)
+            return;
 
         if (!FirstPortal && !m_BluePortalPlaced)
-            l_Portal = m_BluePortal;
-        else if(FirstPortal && !m_OrangePortalPlaced)
-            l_Portal = OrangePortal;
-        else return;
-        
-        float l_CurrentScale = l_Portal.transform.localScale.x;
+        {
+            m_BluePortalScale = Mathf.Clamp(
+                m_BluePortalScale + l_Scroll * m_PortalScaleSpeed,
+                m_MinPortalScale,
+                m_MaxPortalScale
+            );
 
-        float l_NewScale = Mathf.Clamp(l_CurrentScale + l_Scroll * m_PortalScaleSpeed,m_MinPortalScale,m_MaxPortalScale);
+            m_BluePortalPreview.transform.localScale =
+                Vector3.one * m_BluePortalScale;
+        }
+        else if (FirstPortal && !m_OrangePortalPlaced)
+        {
+            m_OrangePortalScale = Mathf.Clamp(
+                m_OrangePortalScale + l_Scroll * m_PortalScaleSpeed,
+                m_MinPortalScale,
+                m_MaxPortalScale
+            );
 
-        l_Portal.transform.localScale = Vector3.one * l_NewScale;
-        
+            m_OrangePortalPreview.transform.localScale =
+                Vector3.one * m_OrangePortalScale;
+        }
     }
+
     void UpdatePortalPreview()
     {
         Portal l_Portal;
@@ -400,14 +395,11 @@ public class FPSController : MonoBehaviour
         {
             if (l_Hit.collider.CompareTag("PortalEnabled"))
             {
-                l_Preview.transform.position =
-                    l_Hit.point + l_Hit.normal * m_PreviewOffset;
+                l_Preview.transform.position = l_Hit.point + l_Hit.normal * m_PreviewOffset;
 
-                l_Preview.transform.rotation =
-                    Quaternion.LookRotation(l_Hit.normal);
+                l_Preview.transform.rotation = Quaternion.LookRotation(l_Hit.normal);
 
-                l_Preview.transform.localScale =
-                    l_Portal.transform.localScale;
+                l_Preview.transform.localScale = Vector3.one * (FirstPortal ? m_OrangePortalScale : m_BluePortalScale);
 
                 l_Preview.SetActive(true);
             }
@@ -417,7 +409,6 @@ public class FPSController : MonoBehaviour
         }
         else
             l_Preview.SetActive(false);
-
     }
 
     public void TakeDamage(float damage)
@@ -425,24 +416,12 @@ public class FPSController : MonoBehaviour
         if (m_IsDead)
             return;
 
-        if (m_DamageTimer <= 0.0f)
-            m_DamageTimer = m_DamageDuration;
-
         m_CurrentHealth -= damage;
 
         if (m_CurrentHealth <= 0.0f)
         {
             m_CurrentHealth = 0.0f;
             Kill();
-        }
-    }
-    void SetDamageImageAlpha(float _Alpha)
-    {
-        if (m_DamageImage != null)
-        {
-            Color l_Color = m_DamageImage.color;
-            l_Color.a = _Alpha;
-            m_DamageImage.color = l_Color;
         }
     }
 
@@ -453,12 +432,9 @@ public class FPSController : MonoBehaviour
 
         m_IsDead = true;
         Cursor.lockState = CursorLockMode.None;
-        SetDamageImageAlpha(0.0f);
 
         if (m_GameOverUI != null)
             m_GameOverUI.SetActive(true);
-
-
     }
 
     public void RestartLevel()

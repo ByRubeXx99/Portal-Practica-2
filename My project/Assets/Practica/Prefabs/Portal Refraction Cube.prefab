@@ -225,7 +225,10 @@ PrefabInstance:
       addedObject: {fileID: 6302303412000710444}
     - targetCorrespondingSourceObject: {fileID: 100022, guid: 63038850a1999484b8f06eff88530a73, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 6787694267726448862}
+      addedObject: {fileID: 6358691704490753796}
+    - targetCorrespondingSourceObject: {fileID: 100022, guid: 63038850a1999484b8f06eff88530a73, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -7606458251082569531}
   m_SourcePrefab: {fileID: 100100000, guid: 63038850a1999484b8f06eff88530a73, type: 3}
 --- !u!4 &1219922191258476075 stripped
 Transform:
@@ -285,7 +288,21 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &6787694267726448862
+--- !u!114 &6358691704490753796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1219922191258501643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a365605f0cbe3c946be14effb46668fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompanionCube
+  m_MaxValidAngle: 40
+  m_TeleportPortalOffset: 1
+--- !u!114 &-7606458251082569531
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -300,5 +317,5 @@ MonoBehaviour:
   m_Laser: {fileID: 6504467703879955909}
   m_LaserLayerMask:
     serializedVersion: 2
-    m_Bits: 1
-  m_MaxDistance: 0
+    m_Bits: 4294967295
+  m_MaxDistance: 100
