@@ -97,12 +97,9 @@ public class FPSController : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(m_ReloadKeyCode))
-        {
             RestartLevel();
-        }
-
-        if (m_IsDead)
-            return;
+        
+        if (m_IsDead) return;
 
         if (Input.GetKeyDown(m_DebugLockAngleKeyCode))
             m_AngleLocked = !m_AngleLocked;
@@ -229,18 +226,18 @@ public class FPSController : MonoBehaviour
     {
         if (m_ObjectAttached)
         {
-            if (Input.GetKeyUp(m_GrabObjectKeyCode))
-                ThrowAttachedObject(0.0f);
-            else if (Input.GetKeyDown(m_ShootKeyCode))
+            if (Input.GetKeyDown(m_ShootOrangePortalKeyCode))
                 ThrowAttachedObject(m_ShootAttachedObjectForce);
+            else if (Input.GetKeyUp(m_GrabObjectKeyCode))
+                ThrowAttachedObject(0.0f);
         }
     }
 
     void ThrowAttachedObject(float Force)
     {
+        m_GrabObject.transform.SetParent(null);
         m_GrabObject.isKinematic = false;
         m_GrabObject.linearVelocity = m_PitchController.transform.forward * Force;
-        m_GrabObject.transform.SetParent(null);
         m_ObjectAttached = false;
     }
 
@@ -362,6 +359,7 @@ public class FPSController : MonoBehaviour
             return;
 
         m_CurrentHealth -= damage;
+
         if (m_CurrentHealth <= 0.0f)
         {
             m_CurrentHealth = 0.0f;
@@ -385,11 +383,11 @@ public class FPSController : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("DeadZone"))
-        {
             Kill();
-        }
+        
     }
 }

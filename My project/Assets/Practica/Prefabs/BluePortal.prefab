@@ -5386,7 +5386,7 @@ MonoBehaviour:
   - {fileID: 494050502240383700}
   - {fileID: 7749310850770414411}
   - {fileID: 3688514082432435037}
-  m_RaycastValidationOffsetDistance: 0.1
+  m_RaycastValidationOffsetDistance: 0.15
   m_MaxAngleValidation: 5
 --- !u!65 &53743482464678103
 BoxCollider:

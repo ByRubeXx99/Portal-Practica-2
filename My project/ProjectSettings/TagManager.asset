@@ -11,6 +11,7 @@ TagManager:
   - Cube
   - CompanionSpawner
   - Turret
+  - RefractionCube
   layers:
   - Default
   - TransparentFX
