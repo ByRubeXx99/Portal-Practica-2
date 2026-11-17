@@ -8315,7 +8315,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1219922191258476075, guid: 7380367a0ff3db248a396ac21f0d98f8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.05
+      value: 5.68
       objectReference: {fileID: 0}
     - target: {fileID: 1219922191258476075, guid: 7380367a0ff3db248a396ac21f0d98f8, type: 3}
       propertyPath: m_LocalPosition.y
@@ -8360,14 +8360,6 @@ PrefabInstance:
     - target: {fileID: 1219922191258501643, guid: 7380367a0ff3db248a396ac21f0d98f8, type: 3}
       propertyPath: m_TagString
       value: RefractionCube
-      objectReference: {fileID: 0}
-    - target: {fileID: 6787694267726448862, guid: 7380367a0ff3db248a396ac21f0d98f8, type: 3}
-      propertyPath: m_MaxDistance
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 9095413909336803688, guid: 7380367a0ff3db248a396ac21f0d98f8, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

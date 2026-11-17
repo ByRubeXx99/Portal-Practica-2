@@ -58,8 +58,6 @@ public class FPSController : MonoBehaviour
     public float m_PortalScaleSpeed = 0.5f;
     public float m_MinPortalScale = 0.5f;
     public float m_MaxPortalScale = 2.0f;
-    public float m_BluePortalScale = 1.0f;
-    public float m_OrangePortalScale = 1.0f;
 
     [Header("PortalPreview")]
     public GameObject m_BluePortalPreview;
@@ -263,45 +261,19 @@ public class FPSController : MonoBehaviour
         return !(m_AttachingObject || m_ObjectAttached);
     }
 
-    /*
     bool Shoot(Portal _Portal)
     {
         Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 
-        if (Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(l_Ray, out RaycastHit l_RaycastHit, m_ShootDistance, m_ShootLayerMask.value))
         {
-            if (!l_RaycastHit.collider.CompareTag("PortalEnabled")) return false;
-
             if (_Portal.IsValidPosition(l_RaycastHit.point, l_RaycastHit.normal))
             {
                 _Portal.gameObject.SetActive(true);
                 return true;
             }
         }
-        return false;
-    }
-    */
-
-    bool Shoot(Portal _Portal)
-    {
-        Ray l_Ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
-
-        if (Physics.Raycast(l_Ray,out RaycastHit l_RaycastHit,m_ShootDistance,m_ShootLayerMask.value,QueryTriggerInteraction.Ignore))
-        {
-            if (!l_RaycastHit.collider.CompareTag("PortalEnabled"))
-                return false;
-
-            if (_Portal == m_BluePortal)
-                _Portal.transform.localScale = Vector3.one * m_BluePortalScale;
-            else if (_Portal == OrangePortal)
-                _Portal.transform.localScale = Vector3.one * m_OrangePortalScale;
-
-            if (_Portal.IsValidPosition(l_RaycastHit.point,l_RaycastHit.normal))
-            {
-                _Portal.gameObject.SetActive(true);
-                return true;
-            }
-        }
+        // _Portal.gameObject.SetActive(false);
         return false;
     }
 
@@ -338,7 +310,7 @@ public class FPSController : MonoBehaviour
         m_CharacterController.enabled = true;
     }
 
-    /*
+
     void ChangePortalScale()
     {
         float l_Scroll = Input.GetAxis("Mouse ScrollWheel");
@@ -357,28 +329,8 @@ public class FPSController : MonoBehaviour
 
         float l_NewScale = Mathf.Clamp(l_CurrentScale + l_Scroll * m_PortalScaleSpeed,m_MinPortalScale,m_MaxPortalScale);
 
-        l_Portal.transform.localScale = Vector3.one * l_NewScale; 
-    }
-    */
-
-    void ChangePortalScale()
-    {
-        float l_Scroll = Input.GetAxis("Mouse ScrollWheel");
-
-        if (l_Scroll == 0.0f) return;
-
-        if (!FirstPortal && !m_BluePortalPlaced)
-        {
-            m_BluePortalScale = Mathf.Clamp(m_BluePortalScale + l_Scroll * m_PortalScaleSpeed, m_MinPortalScale, m_MaxPortalScale);
-
-            m_BluePortalPreview.transform.localScale = Vector3.one * m_BluePortalScale;
-        }
-        else if (FirstPortal && !m_OrangePortalPlaced)
-        {
-            m_OrangePortalScale = Mathf.Clamp(m_OrangePortalScale + l_Scroll * m_PortalScaleSpeed, m_MinPortalScale, m_MaxPortalScale);
-
-            m_OrangePortalPreview.transform.localScale = Vector3.one * m_OrangePortalScale;
-        }
+        l_Portal.transform.localScale = Vector3.one * l_NewScale;
+        
     }
     void UpdatePortalPreview()
     {
@@ -425,12 +377,14 @@ public class FPSController : MonoBehaviour
         {
             if (l_Hit.collider.CompareTag("PortalEnabled"))
             {
-                l_Preview.transform.position = l_Hit.point + l_Hit.normal * m_PreviewOffset;
+                l_Preview.transform.position =
+                    l_Hit.point + l_Hit.normal * m_PreviewOffset;
 
-                l_Preview.transform.rotation = Quaternion.LookRotation(l_Hit.normal);
+                l_Preview.transform.rotation =
+                    Quaternion.LookRotation(l_Hit.normal);
 
-                // l_Preview.transform.localScale = l_Portal.transform.localScale;
-                l_Preview.transform.localScale = Vector3.one * (FirstPortal ? m_OrangePortalScale : m_BluePortalScale);
+                l_Preview.transform.localScale =
+                    l_Portal.transform.localScale;
 
                 l_Preview.SetActive(true);
             }
